@@ -8,7 +8,7 @@ export default function ProductGrid({ category }) {
       const sub = category === "all" ? "" : `/category/${category}`;
       const url = `https://dummyjson.com/products${sub}`;
       const res = await fetch(url);
-      const data = res.json();
+      const data = await res.json();
       return data;
     },
   });
