@@ -1,22 +1,36 @@
-import { filterProducts } from "../actions/products";
 import ProductDetail from "./ProductDetail";
+import { useQuery } from "@tanstack/react-query";
 
-export default function ProductGrid({ products, category, searchText }) {
+export default function ProductGrid({ category }) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["products", category],
+    queryFn: async () => {
+      const sub = category === "all" ? "" : `/category/${category}`;
+      const url = `https://dummyjson.com/products${sub}`;
+      const res = await fetch(url);
+      const data = res.json();
+      return data;
+    },
+  });
+
+  if (isLoading || !data) return <div>Loading...</div>;
+  if (error) return <div>{error.message}</div>;
+
   return (
     <div className="grid grid-cols-3 gap-8">
-      {filterProducts(products, category, searchText).map((product) => (
-        <div className="card bg-base-100 shadow-xl" key={product.id}>
+      {data?.products?.map((product) => (
+        <div className="shadow-xl card bg-base-100" key={product.id}>
           <figure>
             <img
               src={product.thumbnail}
               alt={product.title}
-              className="h-52 w-full object-cover"
+              className="object-cover w-full h-52"
             />
           </figure>
           <div className="card-body">
             <h2 className="card-title">{product.title}</h2>
             <p>{product.description}</p>
-            <div className="card-actions justify-end">
+            <div className="justify-end card-actions">
               <ProductDetail
                 id={product.id}
                 title={product.title}
